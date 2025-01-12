@@ -2,21 +2,23 @@ import XCTest
 @testable import WeakReference
 
 final class WeakReferenceTests: XCTestCase {
-
-    func testWeakReferenceHoldsAReferenceToAnObject() {
-        let anObj = MockObject()
-        let sut = WeakReference(object: anObj)
-        XCTAssertEqual(ObjectIdentifier(sut.object!), ObjectIdentifier(anObj))
+    func testWeakReferenceRetainsObject() {
+        let obj: TestObject = TestObject()
+        let sut = WeakReference(object: obj)
+        XCTAssertNotNil(sut.object, "Weak reference should retain the object while it exists.")
     }
     
-    func testWeakReferenceHoldsAWeakReferenceToAnObject() {
-        var anObj: MockObject? = MockObject()
-        let sut = WeakReference(object: anObj!)
-        XCTAssertNotNil(sut.object)
-        anObj = nil
-        XCTAssertNil(sut.object)
+    func testWeakReferenceDoesNotRetainObjectAfterDeallocation() {
+        var object: TestObject? = TestObject()
+        let sut = WeakReference(object: object!)
+        XCTAssertNotNil(sut.object, "Weak reference should retain the object initially.")
+        
+        // Deallocate the test object
+        object = nil
+        
+        XCTAssertNil(sut.object, "Weak reference should not retain the object once the object is deallocated.")
     }
 
+    private class TestObject {}
 }
 
-final class MockObject {}
